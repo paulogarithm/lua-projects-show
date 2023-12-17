@@ -5,50 +5,50 @@ local Enchantments = require("Enchantments")
 local ORDER = { "Top", "Middle", "Bottom" }
 local FORMAT = { "I", "II", "III", "IV", "V" }
 
-function table.find(t, value)
-    for i, v in ipairs(t) do
-        if v == value then
-            return i
-        end
-    end
-    return nil
+function tableFind(t, value)
+	for i, v in ipairs(t) do
+		if v == value then
+			return i
+		end
+	end
+	return -1
 end
 
-function table.join(arr, sep)
-    local result = ""
-    for i, value in ipairs(arr) do
-        if i > 1 then
-            result = result .. sep
-        end
-        result = result .. tostring(value)
-    end
-    return result
+function tableJoin(arr, sep)
+	local result = ""
+	for i, value in ipairs(arr) do
+		if i > 1 then
+			result = result .. sep
+		end
+		result = result .. tostring(value)
+	end
+	return result
 end
 
-function table.pick(t)
-    return t[math.random(1, #t)]
+function tablePick(t)
+	return t[math.random(1, #t)]
 end
 
-function math.within(num, lower, upper)
-    assert(lower <= upper)
-    return num >= lower and num <= upper
+function mathWithin(num, lower, upper)
+	assert(type(lower) == "number")
+	assert(lower <= upper)
+	return num >= lower and num <= upper
 end
 
-function string.split(inputstr, sep)
-    local s, fields = sep or " ", {}
-    local pattern = string.format("([^%s]+)", s)
-    inputstr:gsub(pattern, function(c) fields[#fields + 1] = c end)
-    return fields
+function stringSplit(inputstr, sep)
+	local s, fields = sep or " ", {}
+	local pattern = string.format("([^%s]+)", s)
+	inputstr:gsub(pattern, function(c)
+		fields[#fields + 1] = c
+	end)
+	return fields
 end
 
 function SnakeToPascal(snake)
-    local words = string.split(snake, "_")
-    for key, word in ipairs(words) do
-        words[key] = string.gsub(word, "(%w)(%w*)", function(first, rest)
-            return string.upper(first) .. string.lower(rest)
-        end)
-    end
-    return table.join(words, " ")
+    local s = string.gsub(snake, "_(%w)", function(match)
+        return string.upper(match)
+    end)
+    return string.upper(string.sub(s, 1, 1)) .. string.sub(s, 2)
 end
 
 -- Get the base value from the number fo bookshelves (1 to 30)
@@ -77,12 +77,14 @@ end
 
 -- Get the power by applying modifiers
 local function GetEnchantementPower(enchantability, base)
-    local randEnchantability = math.random(0, math.floor(enchantability / 4))
-        + math.random(0, math.floor(enchantability / 4)) + 1
-    local enchantLevel = base + randEnchantability
-    local randomBonusPercent = 1 + (math.random() + math.random() - 1) * .15
-    local finalLevel = math.floor((enchantLevel * randomBonusPercent) + .5)
-    return math.max(finalLevel, 1)
+	assert(type(enchantability) == "number")
+	assert(type(base) == "number")
+	local randEnchantability = math.random(0, math.floor(enchantability / 4))
+		+ math.random(0, math.floor(enchantability / 4)) + 1
+	local enchantLevel = base + randEnchantability
+	local randomBonusPercent = 1 + (math.random() + math.random() - 1) * .15
+	local finalLevel = math.floor((enchantLevel * randomBonusPercent) + .5)
+	return math.max(finalLevel, 1)
 end
 
 -- Get a list of all possible enchantments
@@ -91,8 +93,8 @@ local function GetAllPossibleEnchantments(power)
     local index = 1
     for name, range in pairs(Enchantments.Powers) do
         for level, powerRange in ipairs(range) do
-            if math.within(power, powerRange[1], powerRange[2]) and
-                not table.find(Enchantments.IsTreasure, name) then
+            if mathWithin(power, powerRange[1], powerRange[2]) and
+                tableFind(Enchantments.IsTreasure, name) == -1 then
                 if list[index - 1] and
                     list[index - 1].Level < level and
                     list[index - 1].Name == name then
@@ -140,8 +142,8 @@ local function EnchantProfile(bookshelvesAround)
         local probaEnchants = GetProbabilityOfEnchantment(possibleEnchants)
         local selected
         repeat
-            selected = possibleEnchants[table.pick(probaEnchants)]
-        until not table.find(alreadyUsed, selected.Name)
+            selected = possibleEnchants[tablePick(probaEnchants)]
+        until tableFind(alreadyUsed, selected.Name) == -1
         table.insert(alreadyUsed, selected.Name)
         print(SnakeToPascal(selected.Name) .. " " .. tostring(FORMAT[selected.Level]))
     end
