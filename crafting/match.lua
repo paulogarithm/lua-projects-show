@@ -5,8 +5,7 @@ local function CmpMatrix(receipe, content, linOff, colOff)
 		for objN, obj in pairs(line) do
 			assert(type(objN) == "number")
 			local o = content[lineN + linOff - 1][objN + colOff - 1]
-			if o.Count == 0 then continue end
-			if o.Item.Name == obj then return true end
+			if o.Count ~= 0  and o.Item.Name == obj then return true end
 		end
 	end
 	return false
@@ -17,9 +16,11 @@ local function HowManyIn(matrix)
 	local n = 0
 	for _, line in pairs(matrix) do
 		for index, char in pairs(line) do
-			if not char then continue end
-			if char.Count and char.Count <= 0 then continue end
-			n += 1
+			if char then
+				if not char.Count or char.Count > 0 then
+					n = n + 1
+				 end
+			end
 		end
 	end
 	return n

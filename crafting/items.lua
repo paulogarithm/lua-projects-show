@@ -9,13 +9,13 @@ function __Meta_Items:__tostring()
 	return self.Name
 end
 
-function stringSplit(inputstr, sep)
-    local s, fields = sep or " ", {}
-    local pattern = string.format("([^%s]+)", s:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
-    inputstr:gsub(pattern, function(c)
-        fields[#fields + 1] = c
-    end)
-    return fields
+function stringSplit(s, sep)
+    local t = {}
+    sep = sep or ""
+    for x in s:gmatch(sep == "" and "." or "[^" .. sep .. "]+") do
+        table.insert(t, x)
+    end
+    return t
 end
 
 -- Create a new item
