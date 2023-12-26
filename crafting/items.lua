@@ -9,6 +9,15 @@ function __Meta_Items:__tostring()
 	return self.Name
 end
 
+function stringSplit(inputstr, sep)
+    local s, fields = sep or " ", {}
+    local pattern = string.format("([^%s]+)", s:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
+    inputstr:gsub(pattern, function(c)
+        fields[#fields + 1] = c
+    end)
+    return fields
+end
+
 -- Create a new item
 local function New(name, profile, receipe)
 	local self = setmetatable({}, __Meta_Items)
@@ -19,9 +28,9 @@ local function New(name, profile, receipe)
 
 	self.Pattern = {}
 	if receipe.Template == "" then return end
-	for n, line in pairs(string.split(receipe.Template, "/")) do
+	for n, line in pairs(stringSplit(receipe.Template, "/")) do
 		local t = {}
-		for index, char in pairs(string.split(line, "")) do
+		for index, char in pairs(stringSplit(line, "")) do
 			assert(type(index) == "number")
 			local itemIndex = string.byte(char) - string.byte("a") + 1
 			t[index] = receipe.Ingredients[itemIndex]
