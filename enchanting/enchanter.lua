@@ -176,6 +176,8 @@ local function EnchantProfile(bookshelvesAround)
     end
 end
 
-local seed = tonumber(string.sub(tostring({}), #("table: ") + 1), 16)
-math.randomseed(seed)
+local s = string.sub(tostring({}), #("table: ") + 1)
+if #stringSplit(s, "x") == 2 then s = string.sub(s, 3, #s) end
+local seed = tonumber(s, 16)
+math.randomseed((_G._VERSION and string.sub(_G._VERSION, #_G._VERSION) ~= "4") and seed or os.time())
 EnchantProfile(15)
